@@ -1,0 +1,32 @@
+name: Deploy Tenant Proxies
+on:
+  push:
+    paths: ['src/apigee/**']
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        tenant: [tenant-a, tenant-b, shared-standard] # Can be dynamic
+    steps:
+      - uses: actions/checkout@v4
+
+      - id: 'auth'
+        uses: 'google-github-actions/auth@v2'
+        with:
+          credentials_json: '${{ secrets.GCP_SA_KEY }}'
+          token_format: 'access_token'
+
+      - name: Deploy Proxy to Tenant Env
+        run: |
+          # Use apigeecli to bundle and deploy
+          curl -L https://raw.githubusercontent.com/apigee/apigeecli/main/downloadLatest.sh | sh
+          export PATH=$PATH:$HOME/.apigeecli/bin
+          
+          apigeecli proxies bundle -d ./src/apigee/proxies/my-proxy -n my-proxy
+          apigeecli proxies deploy \
+            --name my-proxy \
+            --env env-${{ matrix.tenant }} \
+            --org ${{ vars.APIGEE_ORG }} \
+            --token ${{ steps.auth.outputs.access_token }}
