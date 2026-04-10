@@ -30,4 +30,4 @@ provider "google-beta" {
 }
 
 # Data source to access the project ID or number elsewhere in your code
-data "google_client_config" "current" {}
+# data "google_client_config" "current" {}
