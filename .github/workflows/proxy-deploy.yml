@@ -6,6 +6,9 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    permissions:
+      contents: 'read'
+      id-token: 'write'
     strategy:
       matrix:
         tenant: [tenant-a, tenant-b, shared-standard] # Can be dynamic
@@ -13,10 +16,12 @@ jobs:
       - uses: actions/checkout@v4
 
       - id: 'auth'
-        uses: 'google-github-actions/auth@v2'
+        name: 'Authenticate to Google Cloud'
+        uses: 'google-github-actions/auth@v1'
         with:
-          credentials_json: '${{ secrets.GCP_SA_KEY }}'
-          token_format: 'access_token'
+          create_credentials_file: true
+          workload_identity_provider: 'projects/320246485281/locations/global/workloadIdentityPools/github-pool/providers/github-provider'
+          service_account: 'apigee-sa@apigee-490614.iam.gserviceaccount.com'
 
       - name: Deploy Proxy to Tenant Env
         run: |
