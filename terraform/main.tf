@@ -40,6 +40,7 @@ resource "google_apigee_developer_app" "shared_tenant_apps" {
   developer_email = google_apigee_developer.shared_tenant_devs[each.key].email
   name            = each.value.app_name
   api_products    = [google_apigee_api_product.shared_tier_product.name]
+  callback_url = "tes"
 
   # CRITICAL: These attributes are read by the VerifyAPIKey policy
   attributes = {
