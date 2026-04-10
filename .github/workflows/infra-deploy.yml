@@ -19,7 +19,11 @@ jobs:
           create_credentials_file: true
           workload_identity_provider: 'projects/320246485281/locations/global/workloadIdentityPools/github-pool/providers/github-provider'
           service_account: 'apigee-sa@apigee-490614.iam.gserviceaccount.com'
-
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "1.7.0" # Or your preferred version
+      # ---------------------------
       - name: Terraform Init & Apply
         run: |
           cd terraform
