@@ -1,13 +1,4 @@
-variable "apigee_org_id" { type = string }
-variable "model_a_tenants" {
-  type = map(object({
-    hostname    = string
-    env_tier    = string
-    dev_email   = string
-    app_name    = string
-    backend_url = string
-  }))
-}
+
 
 # 1. Create a Dedicated Environment per Tenant
 resource "google_apigee_environment" "tenant_env" {

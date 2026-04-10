@@ -1,12 +1,4 @@
-variable "apigee_org_id" { type = string }
-variable "shared_tenants" { 
-  type = map(object({
-    email      = string
-    first_name = string
-    last_name  = string
-    app_name   = string
-  }))
-}
+
 
 # 1. Create a Shared API Product (Applies to all Model B tenants)
 resource "google_apigee_api_product" "shared_tier_product" {
