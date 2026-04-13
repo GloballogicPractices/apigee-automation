@@ -18,7 +18,7 @@ resource "google_apigee_developer" "shared_tenant_devs" {
   last_name      = each.value.last_name
   user_name      = each.key
 
-  # Optional: Tag the developer entity directly
+  # Optional: Tag the developer entity directly.
   attributes = {
     tenant_id       = each.key
     isolation_model = "B"
