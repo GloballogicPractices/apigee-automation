@@ -13,10 +13,10 @@ terraform {
   }
 
   # Recommended: Store your state in a GCS bucket
-  # backend "gcs" {
-  #   bucket = "your-terraform-state-bucket"
-  #   prefix = "terraform/state/apigee-infra"
-  # }
+  backend "gcs" {
+    bucket = "490614-infratest"
+    prefix = "terraform/state/apigee-infra"
+  }
 }
 
 provider "google" {
