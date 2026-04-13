@@ -29,5 +29,4 @@ jobs:
           cd terraform
           terraform init
           terraform apply -auto-approve
-        env:
-        TF_LOG: DEBUG
+      
