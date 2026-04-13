@@ -1,4 +1,7 @@
-variable "apigee_org_id" { type = string }
+variable "apigee_org_id" { 
+    type = string 
+    default = "gl-multi-tenant"
+    }
 variable "shared_tenants" { 
   type = map(object({
     email      = string
