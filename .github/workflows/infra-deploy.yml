@@ -16,7 +16,7 @@ jobs:
         name: 'Authenticate to Google Cloud'
         uses: 'google-github-actions/auth@v2'
         with:
-          # create_credentials_file: true
+          create_credentials_file: true
           workload_identity_provider: 'projects/320246485281/locations/global/workloadIdentityPools/github-pool/providers/github-provider'
           service_account: 'apigee-sa@apigee-490614.iam.gserviceaccount.com'
       - name: Setup Terraform

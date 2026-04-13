@@ -14,7 +14,7 @@ terraform {
 
   # Recommended: Store your state in a GCS bucket
   backend "gcs" {
-    bucket = "490614-infratest"
+    bucket = "490614-infratest-gl"
     prefix = "terraform/state/apigee-infra"
   }
 }
