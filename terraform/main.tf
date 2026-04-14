@@ -28,7 +28,7 @@ resource "google_apigee_environment" "shared_pool_env" {
   description     = "Shared environment for Model B tenants"
   deployment_type = "PROXY"
   api_proxy_type  = "PROGRAMMABLE"
-  type            = "BASE" 
+  # type            = "BASE" 
 }
 
 # 2. Create the Shared Environment Group (Routing)
@@ -97,7 +97,7 @@ resource "google_apigee_environment" "model_a_envs" {
   description     = "Isolated Model A environment for ${each.key}"
   deployment_type = "PROXY"
   api_proxy_type  = "PROGRAMMABLE"
-  type            = each.value.env_tier
+  # type            = each.value.env_tier
 }
 
 # 2. Loop & Create Dedicated Environment Groups (Custom DNS per tenant)
