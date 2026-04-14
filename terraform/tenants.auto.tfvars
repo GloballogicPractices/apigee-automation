@@ -8,14 +8,14 @@ model_a_tenants = {
     hostname       = "alpha.api.company.com"
     env_tier       = "COMPREHENSIVE"
     dev_email      = "admin@alphacorp.com"
-    app_name       = "alpha_core_app"
+    app_name       = "alpha-core-app"
     backend_url    = "api.alphainternal.net"
   },
   "omega_finance" = {
     hostname       = "api.omegafinance.com"
     env_tier       = "INTERMEDIATE"
     dev_email      = "tech@omegafinance.com"
-    app_name       = "omega_trading_app"
+    app_name       = "omeg-_trading-app"
     backend_url    = "backend.omega.local"
   }
 }
@@ -26,12 +26,12 @@ model_b_tenants = {
     email        = "admin@startup.com", 
     first_name   = "Startup", 
     last_name    = "Inc", 
-    app_name     = "startup_prod_app" 
+    app_name     = "startup-prod-app" 
   },
   "beta_corp" = { 
     email        = "dev@betacorp.com", 
     first_name   = "Beta", 
     last_name    = "Corp", 
-    app_name     = "beta_api_client" 
+    app_name     = "beta-api-client" 
   }
 }
