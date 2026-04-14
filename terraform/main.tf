@@ -24,7 +24,7 @@ resource "google_apigee_organization" "apigee_org" {
 
 # 1. Create the Shared Environment
 resource "google_apigee_environment" "shared_pool_env" {
-  org_id          = var.apigee_org_id
+  org_id          = google_apigee_organization.apigee_org.id
   name            = "env-standard-pool"
   description     = "Shared environment for Model B tenants"
   deployment_type = "PROXY"
@@ -34,7 +34,7 @@ resource "google_apigee_environment" "shared_pool_env" {
 
 # 2. Create the Shared Environment Group (Routing)
 resource "google_apigee_envgroup" "shared_pool_group" {
-  org_id    = var.apigee_org_id
+  org_id    = google_apigee_organization.apigee_org.id
   name      = "envgroup-standard-pool"
   hostnames = ["shared.api.company.com"]
 }
@@ -47,7 +47,7 @@ resource "google_apigee_envgroup_attachment" "shared_pool_attach" {
 
 # 4. Create the Shared API Product
 resource "google_apigee_api_product" "shared_product" {
-  org_id        = var.apigee_org_id
+  org_id        = google_apigee_organization.apigee_org.id
   name          = "product-shared-standard"
   display_name  = "Standard Shared Tier"
   environments  = [google_apigee_environment.shared_pool_env.name]
@@ -57,7 +57,7 @@ resource "google_apigee_api_product" "shared_product" {
 # 5. Loop & Create Model B Developers
 resource "google_apigee_developer" "model_b_devs" {
   for_each   = var.model_b_tenants
-  org_id     = var.apigee_org_id
+  org_id     = google_apigee_organization.apigee_org.id
   email      = each.value.email
   first_name = each.value.first_name
   last_name  = each.value.last_name
@@ -67,7 +67,7 @@ resource "google_apigee_developer" "model_b_devs" {
 # 6. Loop & Create Model B Apps (Injects Custom Attributes for Logic/Billing)
 resource "google_apigee_developer_app" "model_b_apps" {
   for_each        = var.model_b_tenants
-  org_id          = var.apigee_org_id
+  org_id          = google_apigee_organization.apigee_org.id
   developer_email = google_apigee_developer.model_b_devs[each.key].email
   name            = each.value.app_name
   api_products    = [google_apigee_api_product.shared_product.name]
@@ -93,7 +93,7 @@ resource "google_apigee_developer_app" "model_b_apps" {
 # 1. Loop & Create Dedicated Environments
 resource "google_apigee_environment" "model_a_envs" {
   for_each        = var.model_a_tenants
-  org_id          = var.apigee_org_id
+  org_id          = google_apigee_organization.apigee_org.id
   name            = "env-premium-${each.key}"
   description     = "Isolated Model A environment for ${each.key}"
   deployment_type = "PROXY"
@@ -104,7 +104,7 @@ resource "google_apigee_environment" "model_a_envs" {
 # 2. Loop & Create Dedicated Environment Groups (Custom DNS per tenant)
 resource "google_apigee_envgroup" "model_a_groups" {
   for_each  = var.model_a_tenants
-  org_id    = var.apigee_org_id
+  org_id    = google_apigee_organization.apigee_org.id
   name      = "envgroup-${each.key}"
   hostnames = [each.value.hostname]
 }
