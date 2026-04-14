@@ -1,7 +1,15 @@
-# Output the API Keys to securely pass back to the tenants
-output "tenant_api_keys" {
+output "model_a_api_keys" {
+  description = "API Keys for Premium Dedicated Tenants"
   value = {
-    for k, v in google_apigee_developer_app.shared_tenant_apps : k => v.credentials.consumer_key
+    for k, v in google_apigee_developer_app.model_a_apps : k => v.credentials.consumer_key
+  }
+  sensitive = true
+}
+
+output "model_b_api_keys" {
+  description = "API Keys for Standard Shared Tenants"
+  value = {
+    for k, v in google_apigee_developer_app.model_b_apps : k => v.credentials.consumer_key
   }
   sensitive = true
 }
