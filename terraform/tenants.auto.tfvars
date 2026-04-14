@@ -10,13 +10,6 @@ model_a_tenants = {
     dev_email      = "admin@alphacorp.com"
     app_name       = "alpha_core_app"
     backend_url    = "api.alphainternal.net"
-  },
-  "omega-finance" = {
-    hostname       = "api.omegafinance.com"
-    env_tier       = "INTERMEDIATE"
-    dev_email      = "tech@omegafinance.com"
-    app_name       = "omega_trading_app"
-    backend_url    = "backend.omega.local"
   }
 }
 
