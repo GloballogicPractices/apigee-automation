@@ -1,4 +1,24 @@
 # ==============================================================================
+# APIGEE ORGANIZATION (The Core Foundation)
+# ==============================================================================
+
+resource "google_project_service" "apigee_api" {
+  project            = var.gcp_project_id
+  service            = "apigee.googleapis.com"
+  disable_on_destroy = false
+}
+
+resource "google_apigee_organization" "apigee_org" {
+  project_id         = var.gcp_project_id
+  analytics_region   = var.gcp_region
+  authorized_network = "default" # Change this to your peered VPC network name
+  billing_type       = "EVALUATION" # Use EVALUATION for testing, SUBSCRIPTION for Prod
+
+  # Force Terraform to enable the API before trying to create the Org
+  depends_on = [google_project_service.apigee_api] 
+}
+
+# ==============================================================================
 # MODEL B: SHARED POOL INFRASTRUCTURE (Provisioned Once)
 # ==============================================================================
 
