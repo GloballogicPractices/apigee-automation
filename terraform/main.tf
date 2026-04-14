@@ -96,6 +96,42 @@ resource "google_apigee_api_product" "shared_product" {
   display_name  = "Standard Shared Tier"
   environments  = [google_apigee_environment.shared_pool_env.name]
   approval_type = "auto"
+
+ # ==============================================================
+  # QUOTA LIMITS
+  # ==============================================================
+  # This configuration enforces a limit of 100 requests per minute
+  # across all APIs assigned to this specific product.
+  quota           = "100"
+  quota_interval  = "1"
+  quota_time_unit = "minute" # Accepted values: minute, hour, day, month
+
+  # ==============================================================
+  # OPERATION GROUP (Corrected Syntax)
+  # ==============================================================
+  operation_group {
+    
+    # Your first proxy bundle (Hello World)
+    operation_configs {
+      api_source = "helloworld"
+      
+      operations {
+        resource = "/"
+        methods  = ["GET", "POST", "PUT", "DELETE"]
+      }
+    }
+
+    # Your second proxy bundle (Payments API)
+    # operation_configs {
+    #   api_source = "payments-api"
+      
+    #   operations {
+    #     resource = "/"
+    #     methods  = ["GET", "POST"]
+    #   }
+    # }
+    
+  }
   depends_on = [google_apigee_instance_attachment.shared_pool_instance_attach]
 }
 
@@ -185,6 +221,42 @@ resource "google_apigee_api_product" "model_a_products" {
   display_name  = "Premium Tier - ${each.key}"
   environments  = [google_apigee_environment.model_a_envs[each.key].name]
   approval_type = "auto"
+  # ==============================================================
+  # QUOTA LIMITS
+  # ==============================================================
+  # This configuration enforces a limit of 100 requests per minute
+  # across all APIs assigned to this specific product.
+  quota           = "100"
+  quota_interval  = "1"
+  quota_time_unit = "minute" # Accepted values: minute, hour, day, month
+
+  # ==============================================================
+  # OPERATION GROUP (Corrected Syntax)
+  # ==============================================================
+  operation_group {
+    
+    # Your first proxy bundle (Hello World)
+    operation_configs {
+      api_source = "helloworld"
+      
+      operations {
+        resource = "/"
+        methods  = ["GET", "POST", "PUT", "DELETE"]
+      }
+    }
+
+    # Your second proxy bundle (Payments API)
+    # operation_configs {
+    #   api_source = "payments-api"
+      
+    #   operations {
+    #     resource = "/"
+    #     methods  = ["GET", "POST"]
+    #   }
+    # }
+    
+  }
+  
   depends_on = [google_apigee_instance_attachment.model_a_instance_attach]
 }
 
@@ -215,7 +287,7 @@ resource "google_apigee_developer_app" "model_a_apps" {
   }
 
   attributes {
-    name  = "isolation-model"
+    name  = "isolation_model"
     value = "A"
   }
 }
