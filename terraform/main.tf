@@ -215,7 +215,7 @@ resource "google_apigee_developer_app" "model_a_apps" {
   }
 
   attributes {
-    name  = "isolation_model"
+    name  = "isolation-model"
     value = "A"
   }
 }
