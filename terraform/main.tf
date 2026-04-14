@@ -2,12 +2,6 @@
 # APIGEE ORGANIZATION (The Core Foundation)
 # ==============================================================================
 
-# resource "google_project_service" "apigee_api" {
-#   project            = var.gcp_project_id
-#   service            = "apigee.googleapis.com"
-#   disable_on_destroy = false
-# }
-
 # 1. Enable the Compute Engine API
 resource "google_project_service" "compute_api" {
   project            = var.gcp_project_id
@@ -41,6 +35,15 @@ resource "google_service_networking_connection" "apigee_vpc_connection" {
   reserved_peering_ranges = [google_compute_global_address.apigee_peering_range.name]
 
   depends_on = [google_project_service.servicenetworking_api]
+}
+
+resource "google_apigee_organization" "apigee_org" {
+  project_id         = var.gcp_project_id
+  analytics_region   = var.gcp_region
+  authorized_network = "default" # Change this to your peered VPC network name
+
+  # Force Terraform to enable the API before trying to create the Org
+  # depends_on = [google_project_service.apigee_api] 
 }
 
 resource "google_apigee_instance" "apigee_instance" {
