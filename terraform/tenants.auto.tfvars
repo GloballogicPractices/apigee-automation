@@ -1,5 +1,5 @@
-gcp_project_id = "your-gcp-project-id"
-apigee_org_id  = "your-gcp-project-id"
+gcp_project_id = "apigee-490614"
+apigee_org_id  = "apigee-490614"
 gcp_region     = "us-central1"
 
 # Premium Tenants (Environment-per-Tenant)
