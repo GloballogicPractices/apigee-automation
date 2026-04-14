@@ -8,13 +8,39 @@
 #   disable_on_destroy = false
 # }
 
-resource "google_apigee_organization" "apigee_org" {
-  project_id         = var.gcp_project_id
-  analytics_region   = var.gcp_region
-  authorized_network = "default" # Change this to your peered VPC network name
+# 1. Enable the Compute Engine API
+resource "google_project_service" "compute_api" {
+  project            = var.gcp_project_id
+  service            = "compute.googleapis.com"
+  disable_on_destroy = false
+}
 
-  # Force Terraform to enable the API before trying to create the Org
-  # depends_on = [google_project_service.apigee_api] 
+# 2. Enable the Service Networking API
+resource "google_project_service" "servicenetworking_api" {
+  project            = var.gcp_project_id
+  service            = "servicenetworking.googleapis.com"
+  disable_on_destroy = false
+}
+
+# 3. Allocate a /22 IP Range for the Apigee instances
+resource "google_compute_global_address" "apigee_peering_range" {
+  name          = "apigee-peering-range"
+  project       = var.gcp_project_id
+  purpose       = "VPC_PEERING"
+  address_type  = "INTERNAL"
+  prefix_length = 22
+  network       = "projects/${var.gcp_project_id}/global/networks/default" # The network from your error
+
+  depends_on = [google_project_service.compute_api]
+}
+
+# 4. Create the private connection bridge
+resource "google_service_networking_connection" "apigee_vpc_connection" {
+  network                 = "projects/${var.gcp_project_id}/global/networks/default"
+  service                 = "servicenetworking.googleapis.com"
+  reserved_peering_ranges = [google_compute_global_address.apigee_peering_range.name]
+
+  depends_on = [google_project_service.servicenetworking_api]
 }
 
 resource "google_apigee_instance" "apigee_instance" {
