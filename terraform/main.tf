@@ -49,7 +49,6 @@ resource "google_apigee_organization" "apigee_org" {
   billing_type       = "EVALUATION" 
 
   depends_on = [
-    google_project_service.apigee_api,
     google_service_networking_connection.apigee_vpc_connection
   ]
 }
