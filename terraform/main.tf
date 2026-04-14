@@ -17,6 +17,15 @@ resource "google_apigee_organization" "apigee_org" {
   # depends_on = [google_project_service.apigee_api] 
 }
 
+resource "google_apigee_instance" "apigee_instance" {
+  name     = "runtime-instance-main"
+  location = var.gcp_region
+  org_id   = google_apigee_organization.apigee_org.id
+  
+  # For evaluation/testing, /22 is the standard required CIDR block size
+  peering_cidr_range = "SLASH_22" 
+}
+
 # ==============================================================================
 # MODEL B: SHARED POOL INFRASTRUCTURE (Provisioned Once)
 # ==============================================================================
@@ -51,6 +60,7 @@ resource "google_apigee_api_product" "shared_product" {
   display_name  = "Standard Shared Tier"
   environments  = [google_apigee_environment.shared_pool_env.name]
   approval_type = "auto"
+  depends_on = [google_apigee_instance_attachment.shared_pool_instance_attach]
 }
 
 # 5. Loop & Create Model B Developers
@@ -84,6 +94,12 @@ resource "google_apigee_developer_app" "model_b_apps" {
     value = "B"
   }
 }
+
+resource "google_apigee_instance_attachment" "shared_pool_instance_attach" {
+  instance_id = google_apigee_instance.apigee_instance.id
+  environment = google_apigee_environment.shared_pool_env.name
+}
+
 
 # ==============================================================================
 # MODEL A: DEDICATED INFRASTRUCTURE (Provisioned per Tenant)
@@ -133,6 +149,7 @@ resource "google_apigee_api_product" "model_a_products" {
   display_name  = "Premium Tier - ${each.key}"
   environments  = [google_apigee_environment.model_a_envs[each.key].name]
   approval_type = "auto"
+  depends_on = [google_apigee_instance_attachment.model_a_instance_attach]
 }
 
 # 6. Create Model A Developers
@@ -165,4 +182,10 @@ resource "google_apigee_developer_app" "model_a_apps" {
     name  = "isolation_model"
     value = "A"
   }
+}
+
+resource "google_apigee_instance_attachment" "model_a_instance_attach" {
+  for_each    = var.model_a_tenants
+  instance_id = google_apigee_instance.apigee_instance.id
+  environment = google_apigee_environment.model_a_envs[each.key].name
 }
