@@ -4,11 +4,11 @@ terraform {
   required_providers {
     google = {
       source  = "hashicorp/google"
-      version = "~> 6.0" # Latest major version for best Apigee support
+      version = "7.27.0"# Latest major version for best Apigee support
     }
     google-beta = {
       source  = "hashicorp/google-beta"
-      version = "~> 6.0"
+      version = "7.27.0"
     }
   }
 
