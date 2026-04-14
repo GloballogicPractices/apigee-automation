@@ -180,7 +180,7 @@ resource "google_apigee_target_server" "model_a_targets" {
 # 5. Create Dedicated API Products
 resource "google_apigee_api_product" "model_a_products" {
   for_each      = var.model_a_tenants
-  org_id        = var.apigee_org_id
+  org_id        = google_apigee_organization.apigee_org.id
   name          = "product-${each.key}"
   display_name  = "Premium Tier - ${each.key}"
   environments  = [google_apigee_environment.model_a_envs[each.key].name]
@@ -191,7 +191,7 @@ resource "google_apigee_api_product" "model_a_products" {
 # 6. Create Model A Developers
 resource "google_apigee_developer" "model_a_devs" {
   for_each   = var.model_a_tenants
-  org_id     = var.apigee_org_id
+  org_id     = google_apigee_organization.apigee_org.id
   email      = each.value.dev_email
   first_name = "Admin"
   last_name  = each.key
@@ -201,7 +201,7 @@ resource "google_apigee_developer" "model_a_devs" {
 # 7. Create Model A Apps (With attributes for billing parity)
 resource "google_apigee_developer_app" "model_a_apps" {
   for_each        = var.model_a_tenants
-  org_id          = var.apigee_org_id
+  org_id          = google_apigee_organization.apigee_org.id
   developer_email = google_apigee_developer.model_a_devs[each.key].email
   name            = each.value.app_name
   api_products    = [google_apigee_api_product.model_a_products[each.key].name]
