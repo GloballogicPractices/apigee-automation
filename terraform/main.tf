@@ -40,10 +40,18 @@ resource "google_service_networking_connection" "apigee_vpc_connection" {
 resource "google_apigee_organization" "apigee_org" {
   project_id         = var.gcp_project_id
   analytics_region   = var.gcp_region
-  authorized_network = "default" # Change this to your peered VPC network name
 
   # Force Terraform to enable the API before trying to create the Org
   # depends_on = [google_project_service.apigee_api] 
+  # UPDATE THIS LINE: Use the absolute path to your VPC network
+  authorized_network = "projects/${var.gcp_project_id}/global/networks/default" 
+  
+  billing_type       = "EVALUATION" 
+
+  depends_on = [
+    google_project_service.apigee_api,
+    google_service_networking_connection.apigee_vpc_connection
+  ]
 }
 
 resource "google_apigee_instance" "apigee_instance" {
