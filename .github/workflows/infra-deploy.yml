@@ -28,5 +28,5 @@ jobs:
         run: |
           cd terraform
           terraform init
-          terraform apply -auto-approve
+          terraform apply -replace="null_resource.apigee_tenant_billing_report"
       
