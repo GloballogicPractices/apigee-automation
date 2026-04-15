@@ -464,7 +464,6 @@ data "google_compute_network" "default_network" {
 # 3. CREATE THE PRIVATE DNS ZONE
 # ==============================================================================
 resource "google_dns_managed_zone" "apigee_private_zone" {
-  for_each = var.model_a_tenants
   name        = "apigee-private-zone"
   project     = var.gcp_project_id
   
