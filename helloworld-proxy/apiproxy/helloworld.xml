@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<APIProxy revision="1" name="helloworld">
+    <Basepaths>/hello</Basepaths>
+    <Policies>
+        <Policy>Verify-API-Key</Policy>
+        <Policy>Spike-Arrest-Cost-Control</Policy>
+        <Policy>Enforce-Product-Quota</Policy>
+        <Policy>Stat-Collector-Tenant-Billing</Policy>
+        <Policy>Set-Success-Response</Policy>
+    </Policies>
+    <ProxyEndpoints>
+        <ProxyEndpoint>default</ProxyEndpoint>
+    </ProxyEndpoints>
+    <TargetEndpoints>
+        <TargetEndpoint>default</TargetEndpoint>
+    </TargetEndpoints>
+</APIProxy>

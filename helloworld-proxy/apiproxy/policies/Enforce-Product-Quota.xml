@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Quota async="false" continueOnError="false" enabled="true" name="Enforce-Product-Quota">
+    <DisplayName>Enforce Product Quota</DisplayName>
+    <Allow countRef="verifyapikey.Verify-API-Key.apiproduct.developer.quota.limit"/>
+    <Interval ref="verifyapikey.Verify-API-Key.apiproduct.developer.quota.interval"/>
+    <TimeUnit ref="verifyapikey.Verify-API-Key.apiproduct.developer.quota.timeunit"/>
+    <Identifier ref="verifyapikey.Verify-API-Key.app.tenant_id"/>
+</Quota>

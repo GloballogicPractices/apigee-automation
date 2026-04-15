@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<SpikeArrest async="false" continueOnError="false" enabled="true" name="Spike-Arrest-Cost-Control">
+    <DisplayName>Spike Arrest - Cost Control</DisplayName>
+    <Rate>30ps</Rate>
+    <Identifier ref="verifyapikey.Verify-API-Key.app.tenant_id"/>
+</SpikeArrest>

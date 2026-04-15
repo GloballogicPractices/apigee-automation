@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<StatisticsCollector async="false" continueOnError="false" enabled="true" name="Stat-Collector-Tenant-Billing">
+    <DisplayName>Stat Collector - Tenant Billing</DisplayName>
+    <Statistics>
+        <Statistic name="tenant_id" ref="verifyapikey.Verify-API-Key.app.tenant_id" type="string"/>
+        <Statistic name="isolation_model" ref="verifyapikey.Verify-API-Key.app.isolation_model" type="string"/>
+    </Statistics>
+</StatisticsCollector>

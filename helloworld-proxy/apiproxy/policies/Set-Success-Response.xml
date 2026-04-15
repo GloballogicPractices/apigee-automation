@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<AssignMessage async="false" continueOnError="false" enabled="true" name="Set-Success-Response">
+    <DisplayName>Set Success Response</DisplayName>
+    <Set>
+        <Headers>
+            <Header name="X-Apigee-Status">Success</Header>
+        </Headers>
+        <Payload contentType="application/json">
+{
+  "message": "Target endpoint was successfully reached!",
+  "tenant_id": "{verifyapikey.Verify-API-Key.app.tenant_id}",
+  "isolation_model": "{verifyapikey.Verify-API-Key.app.isolation_model}"
+}
+        </Payload>
+    </Set>
+    <IgnoreUnresolvedVariables>true</IgnoreUnresolvedVariables>
+    <AssignTo createNew="false" transport="http" type="response"/>
+</AssignMessage>
