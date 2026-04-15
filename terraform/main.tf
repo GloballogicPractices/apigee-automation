@@ -377,7 +377,7 @@ resource "google_compute_instance" "apigee_test_vm" {
   depends_on = [google_project_service.compute_api]
 }
 
-# ==============================================================================
+## ==============================================================================
 # APIGEE CUSTOM ANALYTICS REPORT (BILLING)
 # ==============================================================================
 
@@ -406,14 +406,13 @@ resource "null_resource" "apigee_tenant_billing_report" {
       if [ "$HTTP_STATUS" -eq 404 ]; then
         echo "Creating Tenant Billing Custom Report..."
         
-        # 3. Define the Report Configuration JSON
+        # 3. Define the Report Configuration JSON (REMOVED DESCRIPTION FIELD)
         # message_count = Total Traffic
         # dimensions = Our custom attributes + the name of the API proxy
         cat << 'JSON_EOF' > report_payload.json
         {
           "name": "tenant_billing_validation",
           "displayName": "Tenant Billing Validation (Auto-Generated)",
-          "description": "Automated report for multi-tenant API chargebacks",
           "metrics": [
             {
               "name": "message_count",
