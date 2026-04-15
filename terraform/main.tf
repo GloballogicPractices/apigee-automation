@@ -143,6 +143,7 @@ resource "google_apigee_developer" "model_b_devs" {
   first_name = each.value.first_name
   last_name  = each.value.last_name
   user_name  = each.key
+  depends_on = [google_apigee_instance.apigee_instance]
 }
 
 # 6. Loop & Create Model B Apps (Injects Custom Attributes for Logic/Billing)
@@ -165,6 +166,7 @@ resource "google_apigee_developer_app" "model_b_apps" {
     name  = "isolation_model"
     value = "B"
   }
+  depends_on = [google_apigee_instance.apigee_instance]
 }
 
 resource "google_apigee_instance_attachment" "shared_pool_instance_attach" {
@@ -268,6 +270,7 @@ resource "google_apigee_developer" "model_a_devs" {
   first_name = "Admin"
   last_name  = each.key
   user_name  = each.key
+  depends_on = [google_apigee_instance.apigee_instance]
 }
 
 # 7. Create Model A Apps (With attributes for billing parity)
@@ -290,6 +293,7 @@ resource "google_apigee_developer_app" "model_a_apps" {
     name  = "isolation_model"
     value = "A"
   }
+  depends_on = [google_apigee_instance.apigee_instance]
 }
 
 resource "google_apigee_instance_attachment" "model_a_instance_attach" {
