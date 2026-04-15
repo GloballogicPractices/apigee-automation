@@ -256,7 +256,7 @@ resource "google_apigee_api_product" "model_a_products" {
     # }
     
   }
-  
+
   depends_on = [google_apigee_instance_attachment.model_a_instance_attach]
 }
 
@@ -296,4 +296,52 @@ resource "google_apigee_instance_attachment" "model_a_instance_attach" {
   for_each    = var.model_a_tenants
   instance_id = google_apigee_instance.apigee_instance.id
   environment = google_apigee_environment.model_a_envs[each.key].name
+}
+
+# ==============================================================================
+# APIGEE DATA COLLECTORS 
+# ==============================================================================
+
+resource "null_resource" "apigee_data_collectors" {
+  # CRITICAL: This ensures Terraform builds the Org before trying to add collectors
+  depends_on = [google_apigee_organization.apigee_org]
+
+  triggers = {
+    # If your project ID changes, Terraform knows it must re-run this script
+    project_id = var.gcp_project_id
+  }
+
+  provisioner "local-exec" {
+    command = <<EOF
+      #!/bin/bash
+      # 1. Grab the active token from the environment
+      TOKEN=$(gcloud auth print-access-token)
+      ORG="${var.gcp_project_id}"
+
+      # 2. Define a function to safely create collectors
+      create_collector() {
+        NAME=$1
+        DESC=$2
+        
+        echo "Checking if $NAME exists..."
+        # We use %%{http_code} because Terraform requires escaping the % symbol
+        HTTP_STATUS=$(curl -s -o /dev/null -w "%%{http_code}" -H "Authorization: Bearer $TOKEN" "https://apigee.googleapis.com/v1/organizations/$ORG/datacollectors/$NAME")
+        
+        if [ "$HTTP_STATUS" -eq 404 ]; then
+          echo "Collector not found. Creating $NAME..."
+          curl -s -X POST "https://apigee.googleapis.com/v1/organizations/$ORG/datacollectors" \
+            -H "Authorization: Bearer $TOKEN" \
+            -H "Content-Type: application/json" \
+            -d "{\"name\": \"$NAME\", \"type\": \"STRING\", \"description\": \"$DESC\"}"
+          echo " Successfully created!"
+        else
+          echo "Data Collector $NAME already exists. Skipping creation."
+        fi
+      }
+
+      # 3. Execute the function for our specific billing requirements
+      create_collector "dc_tenant_id" "Captures the Tenant ID for billing"
+      create_collector "dc_isolation_model" "Captures the Architecture Model"
+    EOF
+  }
 }
