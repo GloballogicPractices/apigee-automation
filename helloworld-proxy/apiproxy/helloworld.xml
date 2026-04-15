@@ -5,8 +5,8 @@
         <Policy>Verify-API-Key</Policy>
         <Policy>Spike-Arrest-Cost-Control</Policy>
         <Policy>Enforce-Product-Quota</Policy>
-        <Policy>Stat-Collector-Tenant-Billing</Policy>
         <Policy>Set-Success-Response</Policy>
+        <Policy>DataCapture-Tenant-Billing</Policy>
     </Policies>
     <ProxyEndpoints>
         <ProxyEndpoint>default</ProxyEndpoint>

@@ -5,7 +5,7 @@
             <Step><Name>Verify-API-Key</Name></Step>
             <Step><Name>Spike-Arrest-Cost-Control</Name></Step>
             <Step><Name>Enforce-Product-Quota</Name></Step>
-            <Step><Name>Stat-Collector-Tenant-Billing</Name></Step>
+            <Step><Name>DataCapture-Tenant-Billing</Name></Step>
         </Request>
         <Response/>
     </PreFlow>

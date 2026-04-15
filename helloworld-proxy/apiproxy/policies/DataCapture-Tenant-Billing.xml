@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<DataCapture async="false" continueOnError="false" enabled="true" name="DataCapture-Tenant-Billing">
+    <DisplayName>Data Capture - Tenant Billing</DisplayName>
+    
+    <Capture>
+        <DataCollector>dc_tenant_id</DataCollector>
+        <Collect ref="verifyapikey.Verify-API-Key.app.tenant_id"/>
+    </Capture>
+    
+    <Capture>
+        <DataCollector>dc_isolation_model</DataCollector>
+        <Collect ref="verifyapikey.Verify-API-Key.app.isolation_model"/>
+    </Capture>
+</DataCapture>
