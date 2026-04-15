@@ -376,3 +376,70 @@ resource "google_compute_instance" "apigee_test_vm" {
   # Ensure the Compute API is enabled before trying to build a VM
   depends_on = [google_project_service.compute_api]
 }
+
+# ==============================================================================
+# APIGEE CUSTOM ANALYTICS REPORT (BILLING)
+# ==============================================================================
+
+resource "null_resource" "apigee_tenant_billing_report" {
+  # CRITICAL: The data collectors must exist before a report can reference them!
+  depends_on = [null_resource.apigee_data_collectors]
+
+  triggers = {
+    # Re-run if the project ID ever changes
+    project_id = var.gcp_project_id
+  }
+
+  provisioner "local-exec" {
+    command = <<EOF
+      #!/bin/bash
+      # 1. Grab auth token and set variables
+      TOKEN=$(gcloud auth print-access-token)
+      ORG="${var.gcp_project_id}"
+      REPORT_NAME="tenant_billing_validation"
+      
+      echo "Checking if Billing Custom Report exists..."
+      
+      # 2. Check if the report is already built (Idempotency check)
+      HTTP_STATUS=$(curl -s -o /dev/null -w "%%{http_code}" -H "Authorization: Bearer $TOKEN" "https://apigee.googleapis.com/v1/organizations/$ORG/reports/$REPORT_NAME")
+      
+      if [ "$HTTP_STATUS" -eq 404 ]; then
+        echo "Creating Tenant Billing Custom Report..."
+        
+        # 3. Define the Report Configuration JSON
+        # message_count = Total Traffic
+        # dimensions = Our custom attributes + the name of the API proxy
+        cat << 'JSON_EOF' > report_payload.json
+        {
+          "name": "tenant_billing_validation",
+          "displayName": "Tenant Billing Validation (Auto-Generated)",
+          "description": "Automated report for multi-tenant API chargebacks",
+          "metrics": [
+            {
+              "name": "message_count",
+              "function": "sum"
+            }
+          ],
+          "dimensions": [
+            "dc_tenant_id",
+            "dc_isolation_model",
+            "apiproxy"
+          ],
+          "chartType": "column"
+        }
+JSON_EOF
+
+        # 4. Push the configuration to the Apigee Management API
+        curl -s -X POST "https://apigee.googleapis.com/v1/organizations/$ORG/reports" \
+          -H "Authorization: Bearer $TOKEN" \
+          -H "Content-Type: application/json" \
+          -d @report_payload.json
+          
+        rm report_payload.json
+        echo -e "\nReport created successfully!"
+      else
+        echo "Report $REPORT_NAME already exists. Skipping creation."
+      fi
+    EOF
+  }
+}
