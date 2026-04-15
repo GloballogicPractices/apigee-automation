@@ -345,3 +345,34 @@ resource "null_resource" "apigee_data_collectors" {
     EOF
   }
 }
+
+# ==============================================================================
+# INTERNAL TEST VM
+# ==============================================================================
+
+resource "google_compute_instance" "apigee_test_vm" {
+  name         = "apigee-test-vm"
+  project      = var.gcp_project_id
+  machine_type = "e2-micro"
+  zone         = "us-central1-a" # Ensure this matches the region you are deploying to
+
+  boot_disk {
+    initialize_params {
+      # Use a standard, lightweight Debian Linux image
+      image = "debian-cloud/debian-12" 
+    }
+  }
+
+  network_interface {
+    network = "default"
+    
+    # This empty block assigns an ephemeral public IP so you can SSH into it.
+    # Without this, the VM is completely isolated from the internet!
+    access_config {
+      // Ephemeral public IP
+    }
+  }
+
+  # Ensure the Compute API is enabled before trying to build a VM
+  depends_on = [google_project_service.compute_api]
+}
