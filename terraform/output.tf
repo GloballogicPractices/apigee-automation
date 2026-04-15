@@ -6,6 +6,7 @@ output "model_a_api_keys" {
   }
   sensitive = true
 }
+
 output "model_b_api_keys" {
   description = "API Keys for Standard Shared Tenants"
   value = {
