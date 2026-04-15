@@ -80,7 +80,7 @@ resource "google_apigee_environment" "shared_pool_env" {
 resource "google_apigee_envgroup" "shared_pool_group" {
   org_id    = google_apigee_organization.apigee_org.id
   name      = "envgroup-standard-pool"
-  hostnames = ["shared.api.company.com"]
+  hostnames = [for tenant in var.model_b_tenants : tenant.hostname]
 }
 
 # 3. Attach Shared Env to Shared Group
@@ -441,4 +441,83 @@ JSON_EOF
       fi
     EOF
   }
+}
+# ==============================================================================
+# 1. ENABLE CLOUD DNS API
+# ==============================================================================
+resource "google_project_service" "dns_api" {
+  project            = var.gcp_project_id
+  service            = "dns.googleapis.com"
+  disable_on_destroy = false
+}
+
+# ==============================================================================
+# 2. FETCH EXISTING VPC NETWORK
+# ==============================================================================
+# This ensures we attach the private DNS zone to the same network as your test VM
+data "google_compute_network" "default_network" {
+  name    = "default"
+  project = var.gcp_project_id
+}
+
+# ==============================================================================
+# 3. CREATE THE PRIVATE DNS ZONE
+# ==============================================================================
+resource "google_dns_managed_zone" "apigee_private_zone" {
+  for_each = var.model_a_tenants
+  name        = "apigee-private-zone"
+  project     = var.gcp_project_id
+  
+  # CRITICAL: The base domain must end with a trailing dot
+  dns_name    = "${var.base_domain}."
+
+
+  description = "Private DNS zone for internal multi-tenant Apigee routing"
+  visibility  = "private"
+
+  private_visibility_config {
+    networks {
+      network_url = data.google_compute_network.default_network.id
+    }
+  }
+
+  depends_on = [google_project_service.dns_api]
+}
+
+# ==============================================================================
+# 4. EXPLICIT DNS RECORDS FOR MODEL A (DEDICATED TENANTS)
+# ==============================================================================
+resource "google_dns_record_set" "model_a_records" {
+  # Loops through the map, building a unique DNS record for each premium tenant
+  for_each = var.model_a_tenants
+
+  project      = var.gcp_project_id
+  managed_zone = google_dns_managed_zone.apigee_private_zone.name
+  
+  # Dynamically pull the hostname from the variable and append the required trailing dot
+  name         = "${each.value.hostname}." 
+  type         = "A"
+  ttl          = 300
+  
+  # Points directly to the Apigee Internal IP
+  rrdatas = [google_apigee_instance.apigee_instance.host]
+}
+
+# ==============================================================================
+# EXPLICIT DNS RECORDS FOR MODEL B (SHARED POOL TENANTS)
+# ==============================================================================
+resource "google_dns_record_set" "model_b_records" {
+  # Loops through every tenant in the shared pool map
+  for_each = var.model_b_tenants
+
+  project      = var.gcp_project_id
+  managed_zone = google_dns_managed_zone.apigee_private_zone.name
+  
+  # Dynamically pulls the vanity hostname and appends the trailing dot
+  name         = "${each.value.hostname}." 
+  type         = "A"
+  ttl          = 300
+  
+  # Points directly to the shared Apigee Internal Gateway IP
+  rrdatas = [google_apigee_instance.apigee_instance.host]
 }

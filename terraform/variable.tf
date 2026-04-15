@@ -28,9 +28,16 @@ variable "model_a_tenants" {
 variable "model_b_tenants" {
   description = "Tenants using Logical Isolation (Shared Environment)"
   type = map(object({
+    hostname    = string
     email      = string
     first_name = string
     last_name  = string
     app_name   = string
   }))
+}
+
+variable "base_domain" {
+  description = "The root domain for the internal network"
+  type        = string
+  default     = "company.com" 
 }

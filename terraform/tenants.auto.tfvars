@@ -16,12 +16,14 @@ model_a_tenants = {
 # Standard Tenants (Shared Pool)
 model_b_tenants = {
   "startup-inc" = { 
+    hostname     = "startup.api.company.com" # NEW
     email        = "admin@startup.com", 
     first_name   = "Startup", 
     last_name    = "Inc", 
     app_name     = "startup_prod_app" 
   },
   "beta-corp" = { 
+    hostname     = "beta.api.company.com"   # NEW
     email        = "dev@betacorp.com", 
     first_name   = "Beta", 
     last_name    = "Corp", 
