@@ -40,7 +40,7 @@ jobs:
           # credentials_json: '${{ secrets.GCP_CREDENTIALS }}'
           
           # OPTION 2: Workload Identity Federation (Recommended for Production)
-          create_credentials_file: true
+          # create_credentials_file: true
           workload_identity_provider: 'projects/320246485281/locations/global/workloadIdentityPools/github-pool/providers/github-provider'
           service_account: 'apigee-sa@apigee-490614.iam.gserviceaccount.com'
           
