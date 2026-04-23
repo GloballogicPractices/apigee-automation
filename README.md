@@ -56,7 +56,6 @@ To view the tenant-specific metrics within the Apigee UI:
 The solution automatically provisions a full enterprise data pipeline:
 * **Apigee DataCapture:** Silently extracts `tenant_id` and `isolation_model` during API execution.
 * **Apigee Custom Reports:** A dynamically generated UI dashboard (`tenant_billing_validation`) to visualize traffic per tenant.
-* **BigQuery Datastore Export:** API traffic logs are automatically streamed into a BigQuery dataset (`apigee_analytics.traffic_logs`), allowing finance teams to hook up Looker Studio for monthly chargebacks and invoice generation.
 
 ---
 
