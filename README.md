@@ -33,6 +33,24 @@ To prevent cross-tenant data leakage, the architecture enforces multiple layers 
 
 ---
 
+## 🛠️ Proxy Logic & Traffic Flow
+
+The proxies in this architecture act as the "Enforcement Point" for multi-tenancy. When a request hits the gateway:
+1. **Identification:** The `VerifyAPIKey` policy looks up the developer app.
+2. **Metadata Extraction:** Custom attributes (e.g., `tenant_id`, `tier`) are retrieved from the app metadata.
+3. **Routing:** A `RouteRule` with a condition (e.g., `verifyapikey.Verify-API-Key.tier == "premium"`) determines if the traffic stays in the shared pool or routes to a dedicated target.
+4. **Policy Enforcement:** The `Quota` policy uses the `tenant_id` as a `ref` or `identifier`, ensuring that limits are tracked per customer rather than per proxy.
+
+## 📈 Monitoring & Dashboards
+
+To view the tenant-specific metrics within the Apigee UI:
+1. Navigate to **Analyze > Custom Reports**.
+2. Select the `tenant_billing_validation` report provisioned by Terraform.
+3. **Dimensions:** Use the `tenant_id` dimension to group traffic, latency, and error rates by customer.
+4. **Drill-down:** You can filter by `env_group_hostname` to see which vanity URLs are generating the most load.
+
+---
+
 ## 📊 Enterprise Billing & Analytics
 
 The solution automatically provisions a full enterprise data pipeline:
