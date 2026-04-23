@@ -190,6 +190,14 @@ resource "google_apigee_environment" "model_a_envs" {
   # type            = each.value.env_tier
 }
 
+# resource "google_apigee_environment_iam_member" "tenant_a_admin" {
+#   org_id = google_apigee_organization.org.name
+#   env_id = "env-premium-alpha-corp"
+#   role   = "roles/apigee.environmentAdmin"
+#   member = "group:admins@alphacorp.com"
+# }
+
+
 # 2. Loop & Create Dedicated Environment Groups (Custom DNS per tenant)
 resource "google_apigee_envgroup" "model_a_groups" {
   for_each  = var.model_a_tenants

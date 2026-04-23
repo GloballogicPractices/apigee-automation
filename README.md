@@ -4,6 +4,15 @@ This repository contains an end-to-end Infrastructure as Code (IaC) solution usi
 
 The architecture supports both **Dedicated (Model A)** and **Shared (Model B)** tenancy models, complete with isolated Private DNS routing, tenant-specific quotas, automated enterprise billing pipelines via BigQuery, and strict cross-tenant data boundaries.
 
+## 🎯 Core Architecture Pillars
+
+*   **⚖️ Hybrid Isolation:** Choose between physical isolation (Dedicated Environments) for high-compliance tenants or logical isolation (Shared Pool) for cost-efficient scaling.
+*   **🛡️ Hardened Security:** Implements Environment-level IAM, API Product entitlements, and BigQuery Row-Level Security (RLS) to prevent cross-tenant data leakage.
+*   **📊 Transparent Billing:** Real-time telemetry extraction using DataCollectors, feeding into automated BigQuery pipelines for accurate per-tenant chargeback.
+*   **⚡ Proactive Governance:** Built-in guardrails for Apigee platform limits, including automated revision pruning and high-cardinality quota management.
+
+---
+
 ## 🖼️ Architecture Diagram
 
 ![Enterprise Multi-Tenant Apigee X Architecture](./architecture.jpg)
@@ -34,6 +43,28 @@ To prevent cross-tenant data leakage, the architecture enforces multiple layers 
 1. **API Product Entitlements:** Validates that the API Key belongs to the correct Tier (Premium vs. Shared).
 2. **Context Propagation (Header Injection):** During the `PreFlow`, the proxy extracts the immutable `tenant_id` attached to the Terraform-provisioned Developer App and securely injects it into a backend header (`X-Internal-Tenant-ID`).
 3. **Availability Fences:** Quotas (e.g., 100 requests/min) and Spike Arrests (e.g., 30 requests/sec) are strictly enforced per tenant, preventing one tenant's traffic spike from impacting another's availability.
+
+---
+
+## ⚠️ Critical Multi-Tenant Scaling Limits
+
+When designing your tenancy strategy, keep the following Apigee X platform limits in mind:
+
+### 1. Environment & Org Constraints
+* **Environment Cap:** Most subscriptions limit environments to **50-85 per Org**. This is the hard ceiling for **Model A (Dedicated)** scaling.
+* **Proxy Deployments:** Total deployed revisions across all environments are typically capped at **1,500 - 3,000**.
+
+### 2. Routing & Ingress Guardrails
+* **Hostnames per Group:** Standard limit of **100 hostnames** per Environment Group. Scaling to thousands of vanity URLs requires multiple groups or wildcard DNS strategies.
+* **Env Groups per Org:** Capped at **15-20**. You cannot provision a unique group for every tenant in high-scale scenarios.
+
+### 3. Shared Logic & Analytics
+* **DataCollectors:** Hard limit of **20 per Organization**. This architecture consumes 2 for core isolation logic, leaving 18 for business KPIs.
+* **Proxy Bundle Size:** **15MB hard limit**. Shared proxies in Model B must remain lean; avoid embedding large libraries or static resources.
+* **Quota High-Cardinality:** Using `tenant_id` as a quota identifier is supported, but unique identifiers in the millions can impact distributed cache performance during peak traffic.
+
+### 4. Revision Management
+* **Max Revisions:** **50 revisions** per API Proxy. CI/CD pipelines must include logic to prune old revisions to prevent deployment failures.
 
 ---
 
