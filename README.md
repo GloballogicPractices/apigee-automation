@@ -4,6 +4,10 @@ This repository contains an end-to-end Infrastructure as Code (IaC) solution usi
 
 The architecture supports both **Dedicated (Model A)** and **Shared (Model B)** tenancy models, complete with isolated Private DNS routing, tenant-specific quotas, automated enterprise billing pipelines via BigQuery, and strict cross-tenant data boundaries.
 
+## 🖼️ Architecture Diagram
+
+![Enterprise Multi-Tenant Apigee X Architecture](./architecture.jpg)
+
 ---
 
 ## 🏛️ Architectural Patterns
@@ -87,3 +91,25 @@ terraform plan
 
 # 4. Deploy the infrastructure
 terraform apply
+```
+
+### Step 2: Deploy the Multi-Tenant Proxy
+Once the infrastructure is ready, deploy the sample proxy to test the routing and isolation logic:
+```bash
+# Navigate to the proxy directory
+cd samples/helloworld-proxy
+
+# Deploy using the provided script (uses Apigee APIs)
+./deploy.sh --project $PROJECT_ID --env env-standard-pool
+```
+
+### Step 3: Testing the Architecture
+Test the vanity URL routing and tenant isolation using `curl`:
+
+```bash
+# Test Shared Tier (Model B)
+curl -H "x-api-key: <STARTUP_API_KEY>" https://startup.api.company.com/hello
+
+# Test Premium Tier (Model A)
+curl -H "x-api-key: <ALPHA_CORP_API_KEY>" https://alpha.api.company.com/hello
+```

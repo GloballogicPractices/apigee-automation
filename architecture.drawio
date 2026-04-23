@@ -1,0 +1,110 @@
+<mxfile host="app.diagrams.net" modified="2024-03-20T00:00:00.000Z" agent="GeminiCodeAssist" version="24.0.0" type="device">
+  <diagram id="apigee-logical-isolation" name="Enterprise Apigee Multi-Tenant">
+    <mxGraphModel dx="1422" dy="798" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1400" pageHeight="1000" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        
+        <!-- Global Container -->
+        <mxCell id="gcp_project" value="Google Cloud Platform Project" style="swimlane;whiteSpace=wrap;html=1;dashed=1;fillColor=#F8F9FA;strokeColor=#BDC1C6;fontStyle=1;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry x="40" y="40" width="1280" height="880" as="geometry" />
+        </mxCell>
+
+        <!-- Traffic Ingress Layer -->
+        <mxCell id="ingress_layer" value="Request Routing (Environment Groups)" style="swimlane;whiteSpace=wrap;html=1;fillColor=#E8F0FE;strokeColor=#1967D2;" vertex="1" parent="gcp_project">
+          <mxGeometry x="40" y="60" width="1200" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="vanity_shared" value="startup.api.company.com&#xa;(Shared VIP)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#1967D2;" vertex="1" parent="ingress_layer">
+          <mxGeometry x="200" y="40" width="200" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="vanity_premium" value="alpha.api.company.com&#xa;(Dedicated VIP)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#1967D2;" vertex="1" parent="ingress_layer">
+          <mxGeometry x="800" y="40" width="200" height="60" as="geometry" />
+        </mxCell>
+
+        <!-- Apigee Control Plane -->
+        <mxCell id="apigee_runtime" value="Apigee X Runtime Plane" style="swimlane;whiteSpace=wrap;html=1;fillColor=#E6FFED;strokeColor=#28A745;" vertex="1" parent="gcp_project">
+          <mxGeometry x="40" y="220" width="1200" height="420" as="geometry" />
+        </mxCell>
+
+        <!-- Security & Policy Enforcement -->
+        <mxCell id="policy_layer" value="Proxy Policy Enforcement (Global Pre-Flow)" style="swimlane;whiteSpace=wrap;html=1;fillColor=#FFF4E5;strokeColor=#D48806;" vertex="1" parent="apigee_runtime">
+          <mxGeometry x="350" y="40" width="500" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="policy_verify" value="VerifyAPIKey&#xa;(Tenant Context)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;" vertex="1" parent="policy_layer">
+          <mxGeometry x="20" y="40" width="140" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="policy_quota" value="Quota Enforcement&#xa;(ref=tenant_id)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;" vertex="1" parent="policy_layer">
+          <mxGeometry x="180" y="40" width="140" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="policy_dc" value="DataCapture&#xa;(Billing Metadata)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;" vertex="1" parent="policy_layer">
+          <mxGeometry x="340" y="40" width="140" height="40" as="geometry" />
+        </mxCell>
+
+        <!-- Isolation Tier A -->
+        <mxCell id="tier_a" value="Model A: Premium Dedicated Tier" style="swimlane;whiteSpace=wrap;html=1;fillColor=#F1F3F4;strokeColor=#5F6368;" vertex="1" parent="apigee_runtime">
+          <mxGeometry x="650" y="180" width="500" height="200" as="geometry" />
+        </mxCell>
+        <mxCell id="env_premium" value="Environment: env-premium-alpha-corp" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#CEEAD6;" vertex="1" parent="tier_a">
+          <mxGeometry x="30" y="50" width="440" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="backend_dedicated" value="Dedicated Internal Target / PSC" style="shape=cylinder3;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#5F6368;" vertex="1" parent="tier_a">
+          <mxGeometry x="190" y="110" width="120" height="70" as="geometry" />
+        </mxCell>
+
+        <!-- Isolation Tier B -->
+        <mxCell id="tier_b" value="Model B: Standard Shared Pool" style="swimlane;whiteSpace=wrap;html=1;fillColor=#F1F3F4;strokeColor=#5F6368;" vertex="1" parent="apigee_runtime">
+          <mxGeometry x="50" y="180" width="500" height="200" as="geometry" />
+        </mxCell>
+        <mxCell id="env_shared" value="Environment: env-standard-pool" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#D2E3FC;" vertex="1" parent="tier_b">
+          <mxGeometry x="30" y="50" width="440" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="multi_tenant_backend" value="Shared Service Mesh / Cloud Run" style="shape=cylinder3;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#5F6368;" vertex="1" parent="tier_b">
+          <mxGeometry x="190" y="110" width="120" height="70" as="geometry" />
+        </mxCell>
+
+        <!-- Analytics Layer -->
+        <mxCell id="analytics_layer" value="Enterprise Analytics &amp; Billing Pipeline" style="swimlane;whiteSpace=wrap;html=1;fillColor=#FCE8E6;strokeColor=#D93025;" vertex="1" parent="gcp_project">
+          <mxGeometry x="40" y="680" width="1200" height="160" as="geometry" />
+        </mxCell>
+        <mxCell id="telemetry_stream" value="Real-time Telemetry Stream (tenant_id, isolation_model, latency)" style="shape=flexArrow;endArrow=classic;html=1;rounded=0;fillColor=#FAD2CF;strokeColor=#D93025;" edge="1" parent="analytics_layer">
+          <mxGeometry x="0.1" y="20" width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="600" y="-40" as="sourcePoint" />
+            <mxPoint x="600" y="30" as="targetPoint" />
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="bigquery" value="BigQuery Dataset&#xa;(apigee_analytics_export)" style="shape=datastore;whiteSpace=wrap;html=1;fillColor=#FFFFFF;" vertex="1" parent="analytics_layer">
+          <mxGeometry x="400" y="60" width="150" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="custom_report" value="Apigee Custom Report&#xa;(Tenant Billing Validation)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#D93025;fontStyle=1" vertex="1" parent="analytics_layer">
+          <mxGeometry x="700" y="70" width="220" height="60" as="geometry" />
+        </mxCell>
+
+        <!-- Cross-Layer Flows -->
+        <mxCell id="flow_shared" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeWidth=2;strokeColor=#1967D2;" edge="1" parent="gcp_project" source="vanity_shared" target="policy_layer">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="flow_premium" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeWidth=2;strokeColor=#1967D2;" edge="1" parent="gcp_project" source="vanity_premium" target="policy_layer">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="route_b" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeWidth=2;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="apigee_runtime" source="policy_layer" target="tier_b">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="600" y="160" />
+              <mxPoint x="300" y="160" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="route_a" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeWidth=2;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="apigee_runtime" source="policy_layer" target="tier_a">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="600" y="160" />
+              <mxPoint x="900" y="160" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
