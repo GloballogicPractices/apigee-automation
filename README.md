@@ -46,6 +46,23 @@ To prevent cross-tenant data leakage, the architecture enforces multiple layers 
 
 ---
 
+## 🛡️ Private Service Connect (PSC) & Zero Trust Implementation
+
+While the standard architecture uses VPC Peering, the **PSC version** (found in `terraform-psc/`) implements a "Zero Trust" networking model. This is the recommended approach for complex enterprise environments.
+
+### Why PSC over VPC Peering?
+*   **Assume Breach / No Transitive Trust:** Unlike Peering, which connects two networks, PSC creates a unidirectional service-only bridge. Your VPC cannot "see" the Apigee management plane; it can only see a specific service endpoint.
+*   **No IP Address Overlap:** VPC Peering requires a non-overlapping `/22` range. PSC uses a single internal IP from your existing subnet, eliminating CIDR planning conflicts.
+*   **Granular Access Control:** Traffic only reaches the Apigee runtime through an explicit **Service Attachment**. Access is restricted via a `consumer_accept_list` at the project level.
+
+### Technical Flow in this Solution:
+1.  **Service Attachment:** The Apigee Instance generates a unique URI that represents the gateway service.
+2.  **PSC Endpoint:** Terraform provisions a `google_compute_forwarding_rule` in your local VPC. This acts as the "Front Door."
+3.  **Identity-Aware Egress:** A dedicated Service Account (`apigee-egress-identity`) is used for "Southbound" traffic (Apigee to your backend). This allows your backend services to verify the identity of the Apigee proxy using OIDC tokens, rather than trusting the source IP.
+4.  **Unified DNS:** The Private DNS Zone maps all tenant vanity URLs (`*.api.company.com`) to the internal IP of the PSC Endpoint.
+
+---
+
 ## ⚠️ Critical Multi-Tenant Scaling Limits
 
 When designing your tenancy strategy, keep the following Apigee X platform limits in mind:
@@ -109,6 +126,7 @@ The solution automatically provisions a full enterprise data pipeline:
     * `Project IAM Admin` (To assign service-linked roles)
 
 ### Step 1: Initialize and Apply Infrastructure
+#### Option A: Manual Deployment
 ```bash
 # 1. Authenticate to Google Cloud
 gcloud auth application-default login

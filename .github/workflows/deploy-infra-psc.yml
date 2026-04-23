@@ -1,0 +1,72 @@
+name: Deploy Apigee Infrastructure
+
+on:
+  workflow_dispatch:
+    inputs:
+      deployment_type:
+        description: 'Architecture to deploy'
+        required: true
+        default: 'psc'
+        type: choice
+        options:
+          - peering
+          - psc
+
+env:
+  PROJECT_ID: apigee-490614
+  GCP_REGION: us-central1
+
+jobs:
+  terraform:
+    name: Terraform Provisioning
+    runs-on: ubuntu-latest
+    
+    permissions:
+      contents: 'read'
+      id-token: 'write'
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Authenticate to Google Cloud
+        id: auth
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: 'projects/320246485281/locations/global/workloadIdentityPools/github-pool/providers/github-provider'
+          service_account: 'apigee-sa@apigee-490614.iam.gserviceaccount.com'
+          create_credentials_file: true
+
+      - name: Setup Google Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+
+      - name: Terraform Init
+        run: |
+          if [ "${{ github.event.inputs.deployment_type }}" == "psc" ]; then
+            cd terraform-psc
+          else
+            cd terraform
+          fi
+          terraform init
+
+      - name: Terraform Plan
+        run: |
+          if [ "${{ github.event.inputs.deployment_type }}" == "psc" ]; then
+            cd terraform-psc
+          else
+            cd terraform
+          fi
+          terraform plan -out=tfplan
+
+      - name: Terraform Apply
+        if: github.ref == 'refs/heads/main'
+        run: |
+          if [ "${{ github.event.inputs.deployment_type }}" == "psc" ]; then
+            cd terraform-psc
+          else
+            cd terraform
+          fi
+          terraform apply -auto-approve tfplan
