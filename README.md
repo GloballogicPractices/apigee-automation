@@ -65,7 +65,13 @@ The solution automatically provisions a full enterprise data pipeline:
 1. A Google Cloud Project with Billing enabled (Apigee Evaluation tier requires this).
 2. [Terraform](https://developer.hashicorp.com/terraform/downloads) installed locally.
 3. Google Cloud SDK (`gcloud`) installed and authenticated.
-4. The user executing the script must have `Editor` and `DNS Administrator` IAM roles.
+ 4. The user/Service Account executing the script must have the following IAM roles:
+    * `Apigee Admin` (Full control over Apigee resources)
+    * `Compute Network Admin` (To manage VPC peering and Load Balancing)
+    * `DNS Administrator` (To manage vanity URL records)
+    * `Service Usage Admin` (To enable required Google APIs)
+    * `BigQuery Data Editor` (For billing pipeline setup)
+    * `Project IAM Admin` (To assign service-linked roles)
 
 ### Step 1: Initialize and Apply Infrastructure
 ```bash
