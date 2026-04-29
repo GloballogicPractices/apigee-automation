@@ -18,6 +18,9 @@ The PSC implementation follows a dual-path connectivity model to ensure that tra
 *   **PSC NAT Subnet:** A dedicated subnet with the `PRIVATE_SERVICE_CONNECT` purpose, used to provide IPs for traffic exiting the Apigee management plane.
 *   **Service Attachment (Producer):** Exposes your internal backends (via a Load Balancer) as a PSC Service.
 *   **Endpoint Attachment:** Connects the Apigee Organization to your local Service Attachment, completing the Zero Trust loop.
+*   **Egress Request Flow:** For a detailed technical breakdown of the egress path, refer to the **Southbound Sequence Diagram** (located on Page 2 of the design file).
+
+!Southbound Request Flow Sequence
 
 ### 3. Zero Trust Identity Layer
 *   **Identity-Based Egress:** Apigee is configured with a dedicated Google Service Account. 
@@ -43,6 +46,7 @@ The PSC implementation follows a dual-path connectivity model to ensure that tra
 *   `providers.tf`: Google and Google-Beta provider configurations.
 *   `terraform.tfvars`: Sample tenant data (Rename to `.tfvars` for use).
 *   `backend.tf`: Configuration for GCS state storage.
+*   `architecture.drawio`: Multi-page design document containing the Logical Isolation diagram and Southbound Sequence diagram.
 
 ---
 
