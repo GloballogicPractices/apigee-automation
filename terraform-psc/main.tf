@@ -35,9 +35,19 @@ resource "google_apigee_instance" "apigee_instance" {
 # ZERO TRUST NETWORKING: Private Service Connect Endpoint
 # ==============================================================================
 
+resource "google_compute_subnetwork" "apigee_psc_subnet" {
+  name                     = "sb-${var.gcp_project_id}-${var.gcp_region}-apigee"
+  project                  = var.gcp_project_id
+  region                   = var.gcp_region
+  network                  = data.google_compute_network.default_network.id
+  ip_cidr_range            = "10.150.0.0/24"
+  private_ip_google_access = true
+  description              = "Dedicated subnet for Apigee PSC endpoints and test resources"
+}
+
 resource "google_compute_address" "apigee_psc_endpoint_ip" {
   name         = "apigee-psc-endpoint-ip"
-  subnetwork   = "default"
+  subnetwork   = google_compute_subnetwork.apigee_psc_subnet.id
   address_type = "INTERNAL"
   purpose      = "GCE_ENDPOINT"
   project      = var.gcp_project_id
@@ -48,10 +58,54 @@ resource "google_compute_forwarding_rule" "apigee_psc_endpoint" {
   name                  = "apigee-psc-endpoint"
   target                = google_apigee_instance.apigee_instance.service_attachment
   network               = data.google_compute_network.default_network.id
+  allow_psc_global_access = true
   ip_address            = google_compute_address.apigee_psc_endpoint_ip.id
   load_balancing_scheme = "" # Required to be empty for PSC Service Attachments
   project               = var.gcp_project_id
   region                = var.gcp_region
+}
+
+# ==============================================================================
+# SOUTHBOUND ZERO TRUST: Service Producer Setup
+# Follows: https://docs.cloud.google.com/vpc/docs/configure-private-service-connect-services
+# ==============================================================================
+
+# 1. PSC NAT Subnet (Required for the Producer side)
+resource "google_compute_subnetwork" "psc_nat_subnet" {
+  name          = "sb-${var.gcp_project_id}-${var.gcp_region}-psc-nat"
+  project       = var.gcp_project_id
+  region        = var.gcp_region
+  network       = data.google_compute_network.default_network.id
+  ip_cidr_range = "10.160.0.0/24"
+  purpose       = "PRIVATE_SERVICE_CONNECT" # Hard requirement for Service Attachments
+}
+
+# 2. Service Attachment (Exposing your Backend to Apigee)
+# This is the resource you were looking for.
+resource "google_compute_service_attachment" "backend_service_attachment" {
+  name                  = "sa-backend-services"
+  project               = var.gcp_project_id
+  region                = var.gcp_region
+  description           = "Service Attachment for Apigee Southbound connectivity"
+  enable_proxy_protocol = false
+  connection_preference = "ACCEPT_AUTOMATIC"
+
+  # Target an Internal Load Balancer (ILB) that fronts your backends
+  # Replace this with your actual ILB Forwarding Rule ID
+  target_service = "projects/${var.gcp_project_id}/regions/${var.gcp_region}/forwardingRules/backend-ilb-rule"
+  
+  nat_subnets = [google_compute_subnetwork.psc_nat_subnet.id]
+}
+
+# 3. Apigee Endpoint Attachment (Connecting Apigee to your Attachment)
+resource "google_apigee_endpoint_attachment" "southbound_attachment" {
+  org_id                 = google_apigee_organization.apigee_org.id
+  endpoint_attachment_id = "ea-backend-vpc"
+  location               = var.gcp_region
+  service_attachment     = google_compute_service_attachment.backend_service_attachment.id
+  
+  # Ensure the instance exists first
+  depends_on = [google_apigee_instance.apigee_instance]
 }
 
 # ==============================================================================
@@ -316,7 +370,8 @@ resource "google_compute_instance" "apigee_test_vm" {
   }
 
   network_interface {
-    network = "default"
+    network    = data.google_compute_network.default_network.id
+    subnetwork = google_compute_subnetwork.apigee_psc_subnet.id
     access_config {} # Ephemeral public IP for SSH
   }
 
